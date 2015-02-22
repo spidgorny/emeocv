@@ -11,7 +11,7 @@ Prerequisites
 
 * g++, make
 * OpenCV 2 (Debian/Ubuntu/Raspbian: `apt-get install libopencv-dev`)
-* RRDtool (`apt-get install rrdtool librrd-dev`)
+* MySQL-Client (`apt-get install mysql-client libmysqlclient-dev`)
 * log4cpp (`apt-get install liblog4cpp5-dev`)
 
 Build
@@ -34,7 +34,7 @@ Usage
         -o <directory> : capture images into directory.
         -l : learn OCR.
         -t : test OCR.
-        -w : write OCR data to RR database. This is the normal working mode.
+        -w : write OCR data to MYSQL database. This is the normal working mode.
 
     Options:
         -s <n> : Sleep n milliseconds after processing of each image (default=1000).
@@ -47,6 +47,7 @@ License
 =======
 
 Copyright 2015 Martin Kompf
+Copyright 2015 Matthias Freund (MAFLO321)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

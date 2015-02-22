@@ -6,4 +6,8 @@ digitMinHeight: 20
 digitMaxHeight: 90
 digitYAlignment: 10
 ocrMaxDist: 600000.
+mysqlHost: "localhost"
+mysqlUser: "root"
+mysqlPassword: "root"
+mysqlDatabase: "emeter"
 trainingDataFilename: "training.yml"

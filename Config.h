@@ -46,6 +46,22 @@ public:
         return _cannyThreshold2;
     }
 
+    std::string getMysqlHost() const {
+            return _mysqlHost;
+    }
+
+    std::string getMysqlUser() const {
+            return _mysqlUser;
+    }
+
+    std::string getMysqlPassword() const {
+            return _mysqlPassword;
+    }
+
+    std::string getMysqlDatabase() const {
+            return _mysqlDatabase;
+    }
+
 private:
     int _rotationDegrees;
     float _ocrMaxDist;
@@ -54,6 +70,10 @@ private:
     int _digitYAlignment;
     int _cannyThreshold1;
     int _cannyThreshold2;
+    std::string _mysqlHost;
+    std::string _mysqlUser;
+    std::string _mysqlPassword;
+    std::string _mysqlDatabase;
     std::string _trainingDataFilename;
 };
 

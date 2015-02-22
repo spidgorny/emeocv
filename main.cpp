@@ -25,12 +25,11 @@
 #include <log4cpp/SimpleLayout.hh>
 #include <log4cpp/Priority.hh>
 
-#include "Config.h"
 #include "Directory.h"
 #include "ImageProcessor.h"
 #include "KNearestOcr.h"
 #include "Plausi.h"
-#include "RRDatabase.h"
+#include "MySQLDatabase.h"
 
 static int delay = 1000;
 
@@ -171,7 +170,7 @@ static void writeData(ImageInput* pImageInput) {
 
     Plausi plausi;
 
-    RRDatabase rrd("emeter.rrd");
+    MySQLDatabase mysql("emeter");
 
     struct stat st;
 
@@ -190,7 +189,7 @@ static void writeData(ImageInput* pImageInput) {
         if (proc.getOutput().size() == 7) {
             std::string result = ocr.recognize(proc.getOutput());
             if (plausi.check(result, pImageInput->getTime())) {
-                rrd.update(plausi.getCheckedTime(), plausi.getCheckedValue());
+                mysql.insert("emeter", plausi.getCheckedTime(), plausi.getCheckedValue());
             }
         }
         if (0 == stat("imgdebug", &st) && S_ISDIR(st.st_mode)) {
