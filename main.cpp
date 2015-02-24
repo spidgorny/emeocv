@@ -170,7 +170,7 @@ static void writeData(ImageInput* pImageInput) {
 
     Plausi plausi;
 
-    MySQLDatabase mysql("emeter");
+    MySQLDatabase mysql(config);
 
     struct stat st;
 

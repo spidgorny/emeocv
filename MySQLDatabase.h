@@ -6,6 +6,7 @@
 #ifndef MySQLDatabase_H_
 #define MySQLDatabase_H_
 
+#include <mysql/mysql.h>
 #include "MySQLDatabase.h"
 #include "Config.h"
 
@@ -16,7 +17,7 @@ public:
     int insert(const char* table, time_t time, double value);
 
 private:
-    _connect;
+    MYSQL* _connect;
 };
 
 #endif /* MySQLDatabase_H_ */

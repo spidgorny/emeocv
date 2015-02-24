@@ -46,8 +46,8 @@ There is a tutorial in german language that explains use case and function of th
 License
 =======
 
-Copyright 2015 Martin Kompf
-Copyright 2015 Matthias Freund (MAFLO321)
+* Copyright 2015 Martin Kompf
+* Copyright 2015 Matthias Freund (MAFLO321)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
