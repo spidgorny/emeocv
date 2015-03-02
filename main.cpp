@@ -214,7 +214,7 @@ static void usage(const char* progname) {
     std::cout << "  -o <directory> : capture images into directory.\n";
     std::cout << "  -l : learn OCR.\n";
     std::cout << "  -t : test OCR.\n";
-    std::cout << "  -w : write OCR data to RR database. This is the normal working mode.\n";
+    std::cout << "  -w : write OCR data to MySQL database. This is the normal working mode.\n";
     std::cout << "\nOptions:\n";
     std::cout << "  -s <n> : Sleep n milliseconds after processing of each image (default=1000).\n";
     std::cout << "  -v <l> : Log level. One of DEBUG, INFO, ERROR (default).\n";
