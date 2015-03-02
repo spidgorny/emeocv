@@ -14,6 +14,14 @@ public:
     void saveConfig();
     void loadConfig();
 
+    bool getFlipHorizontal() const {
+            return _flipHorizontal;
+    }
+
+    bool getFlipVertical() const {
+            return _flipVertical;
+    }
+
     int getDigitMaxHeight() const {
         return _digitMaxHeight;
     }
@@ -63,6 +71,8 @@ public:
     }
 
 private:
+    bool _flipHorizontal;
+    bool _flipVertical;
     int _rotationDegrees;
     float _ocrMaxDist;
     int _digitMinHeight;

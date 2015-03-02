@@ -78,6 +78,9 @@ void ImageProcessor::process() {
     // convert to gray
     cvtColor(_img, _imgGray, CV_BGR2GRAY);
 
+    // initial flip to get the digits up
+    flip(_config.getFlipHorizontal(), _config.getFlipVertical());
+
     // initial rotation to get the digits up
     rotate(_config.getRotationDegrees());
 
@@ -90,6 +93,29 @@ void ImageProcessor::process() {
 
     if (_debugWindow) {
         showImage();
+    }
+}
+
+/**
+ * Flip image.
+ */
+void ImageProcessor::flip(bool flipHorizontal, bool flipVertical) {
+    int flipCode = 2;
+    if (flipHorizontal && flipVertical) {
+        flipCode = -1;
+    } else if (!flipHorizontal && flipVertical) {
+        flipCode = 0;
+    } else if (flipHorizontal && !flipVertical) {
+        flipCode = 1;
+    }
+    if (flipCode != 2) {
+        cv::Mat img_fliped;
+        cv::flip(_imgGray, img_fliped, flipCode);
+        _imgGray = img_fliped;
+        if (_debugWindow) {
+            cv::flip(_img, img_fliped, flipCode);
+            _img = img_fliped;
+        }
     }
 }
 

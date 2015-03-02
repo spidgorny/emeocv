@@ -31,6 +31,7 @@ public:
     void loadConfig();
 
 private:
+    void flip(bool flipHorizontal, bool flipVertical);
     void rotate(double rotationDegrees);
     void findCounterDigits();
     void findAlignedBoxes(std::vector<cv::Rect>::const_iterator begin,
