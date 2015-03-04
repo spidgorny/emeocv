@@ -14,14 +14,14 @@
 MySQLDatabase::MySQLDatabase(const Config & config) {
     _connect = mysql_init(NULL);
     if (!_connect) {
-        std::cout << "MySQL Initialization Failed";
+        log4cpp::Category::getRoot() << log4cpp::Priority::ERROR << "MySQL Initialization Failed";
     }
     _connect = mysql_real_connect(_connect, config.getMysqlHost().c_str(), config.getMysqlUser().c_str(),
             config.getMysqlPassword().c_str(), config.getMysqlDatabase().c_str(), 0, NULL, 0);
     if (_connect) {
-        std::cout << "Connection Succeeded\n";
+        log4cpp::Category::getRoot() << log4cpp::Priority::INFO << "Connection Succeeded\n";
     } else {
-        std::cout << "Connection Failed\n";
+        log4cpp::Category::getRoot() << log4cpp::Priority::ERROR << "Connection Failed\n";
     }
 }
 

@@ -68,6 +68,7 @@ static void testOcr(ImageInput* pImageInput) {
             std::cout << "  -------" << std::endl;
         }
         int key = cv::waitKey(delay);
+        if (key >= 0x100000) key -= 0x100000;  // workaround for waitKey bug
 
         if (key == 'q') {
             std::cout << "Quit\n";
@@ -134,6 +135,7 @@ static void adjustCamera(ImageInput* pImageInput) {
         }
 
         key = cv::waitKey(delay);
+        if (key >= 0x100000) key -= 0x100000; // workaround for waitKey bug
 
         if (key == 'q' || key == 's') {
             std::cout << "Quit\n";
@@ -314,6 +316,3 @@ int main(int argc, char **argv) {
     delete pImageInput;
     exit(EXIT_SUCCESS);
 }
-
-
-
