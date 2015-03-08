@@ -163,7 +163,7 @@ static void capture(ImageInput* pImageInput) {
     }
 }
 
-static void writeData(ImageInput* pImageInput) {
+static void writeData(ImageInput* pImageInput, std::string timeDevidor) {
     log4cpp::Category::getRoot().info("writeData");
 
     Config config;
@@ -175,6 +175,33 @@ static void writeData(ImageInput* pImageInput) {
     MySQLDatabase mysql(config);
 
     struct stat st;
+
+    char type = *timeDevidor.rbegin();
+    int devidor = atoi(timeDevidor.substr(0, timeDevidor.length()-1).c_str());
+    time_t timeNext = 0;
+    if ((type == 'h' || type == 'm' || type == 's') && devidor) {
+        time_t now = time(0);
+        struct tm * y2k;
+        y2k = localtime(&now);
+        switch(type) {
+            case 'h':
+                y2k->tm_hour = y2k->tm_hour - (y2k->tm_hour % devidor);
+                y2k->tm_min = 0;
+                y2k->tm_sec = 0;
+                timeNext = mktime(y2k) + (3600 * devidor); // 60*60*devidor
+                break;
+            case 'm':
+                y2k->tm_min = y2k->tm_min - (y2k->tm_min % devidor);
+                y2k->tm_sec = 0;
+                timeNext = mktime(y2k) + (60 * devidor); // 60*devidor
+                break;
+            case 's':
+                y2k->tm_sec = y2k->tm_sec - (y2k->tm_sec % devidor);
+                timeNext = mktime(y2k) + devidor; // devidor
+                break;
+        }
+        std::cout << "Update MySQL DB every " << devidor << type << ".\n";
+    }
 
     KNearestOcr ocr(config);
     if (! ocr.loadTrainingData()) {
@@ -191,7 +218,9 @@ static void writeData(ImageInput* pImageInput) {
         if (proc.getOutput().size() == 7) {
             std::string result = ocr.recognize(proc.getOutput());
             if (plausi.check(result, pImageInput->getTime())) {
-                mysql.insert("emeter", plausi.getCheckedTime(), plausi.getCheckedValue());
+                if (timeNext == 0) {
+                    mysql.insert("emeter", plausi.getCheckedTime(), plausi.getCheckedValue());
+                }
             }
         }
         if (0 == stat("imgdebug", &st) && S_ISDIR(st.st_mode)) {
@@ -199,6 +228,24 @@ static void writeData(ImageInput* pImageInput) {
             pImageInput->setOutputDir("imgdebug");
             pImageInput->saveImage();
             pImageInput->setOutputDir("");
+        }
+        if (timeNext != 0 && timeNext <= time(0)) {
+            if (plausi.getCheckedValue() != -1) {
+                mysql.insert("emeter", timeNext, plausi.getCheckedValue());
+                while (timeNext <= time(0)) {
+                    switch(type) {
+                        case 'h':
+                            timeNext += 3600 * devidor; // 60*60*devidor
+                            break;
+                        case 'm':
+                            timeNext += 60 * devidor; // 60*devidor
+                            break;
+                        case 's':
+                            timeNext += devidor; // devidor
+                            break;
+                    }
+                }
+            }
         }
         usleep(delay*1000L);
     }
@@ -218,6 +265,8 @@ static void usage(const char* progname) {
     std::cout << "  -t : test OCR.\n";
     std::cout << "  -w : write OCR data to MySQL database. This is the normal working mode.\n";
     std::cout << "\nOptions:\n";
+    std::cout << "  -d <t> : ONLY WORKS WITH OPERATION ""-w"" ! If time is divisible without remainder by t, write to DB.\n";
+    std::cout << "           e.g.: 1h = every full hour or 10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None)\n";
     std::cout << "  -s <n> : Sleep n milliseconds after processing of each image (default=1000).\n";
     std::cout << "  -v <l> : Log level. One of DEBUG, INFO, ERROR (default).\n";
 }
@@ -241,12 +290,13 @@ int main(int argc, char **argv) {
     int opt;
     ImageInput* pImageInput = 0;
     int inputCount = 0;
+    std::string timeDevidor;
     std::string outputDir;
     std::string logLevel = "ERROR";
     char cmd = 0;
     int cmdCount = 0;
 
-    while ((opt = getopt(argc, argv, "i:c:ltaws:o:v:h")) != -1) {
+    while ((opt = getopt(argc, argv, "i:c:ltawd:s:o:v:h")) != -1) {
         switch (opt) {
             case 'i':
                 pImageInput = new DirectoryInput(Directory(optarg, ".png"));
@@ -262,6 +312,9 @@ int main(int argc, char **argv) {
             case 'w':
                 cmd = opt;
                 cmdCount++;
+                break;
+            case 'd':
+                timeDevidor = optarg;
                 break;
             case 'o':
                 cmd = opt;
@@ -309,7 +362,7 @@ int main(int argc, char **argv) {
             adjustCamera(pImageInput);
             break;
         case 'w':
-            writeData(pImageInput);
+            writeData(pImageInput, timeDevidor);
             break;
     }
 
