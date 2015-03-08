@@ -97,5 +97,3 @@ bool CameraInput::nextImage() {
 
     return success;
 }
-
-

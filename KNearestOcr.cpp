@@ -137,4 +137,3 @@ cv::Mat KNearestOcr::prepareSample(const cv::Mat& img) {
 void KNearestOcr::initModel() {
     _pModel = new CvKNearest(_samples, _responses);
 }
-
