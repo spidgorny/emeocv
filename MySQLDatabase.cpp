@@ -23,25 +23,31 @@ MySQLDatabase::MySQLDatabase(const Config & config) {
     } else {
         log4cpp::Category::getRoot() << log4cpp::Priority::ERROR << "Connection Failed\n";
     }
+    my_bool reconnect = 1;
+    mysql_options(_connect, MYSQL_OPT_RECONNECT, &reconnect);
+    mysql_autocommit(_connect, true);
 }
 
 MySQLDatabase::~MySQLDatabase() {
     mysql_close(_connect);
+    mysql_library_end();
     delete _connect;
 }
 
 int MySQLDatabase::insert(const char* table, time_t time, double counter) {
-    char ts[sizeof "2014-07-19 22:20:00"];
+    char ts[20];
     strftime(ts, sizeof ts, "%F %T", localtime(&time));
 
-    std::string query;
-    query = sprintf("INSERT INTO `%s` (timestamp, conskwh, consws) VALUES (%s,%.1f,%.0f);",
+    char query[255];
+    sprintf(query, "INSERT INTO `%s` (timestamp, conskwh, consws) VALUES ('%s', %.1f, %.0f);",
             table, ts, counter/*kWh*/, counter * 3600000 /*Ws*/);
+    log4cpp::Category::getRoot() << log4cpp::Priority::DEBUG << "MySQL-Query: " << query << "\n";
 
-    int res = mysql_query(_connect, query.c_str());
+    int res = mysql_query(_connect, query);
     if (res) {
         log4cpp::Category::getRoot() << log4cpp::Priority::ERROR << mysql_error(_connect);
     }
+    mysql_close(_connect);
 
     return res;
 }
