@@ -232,7 +232,7 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor) {
         if (timeNext != 0 && timeNext <= time(0)) {
             if (plausi.getCheckedValue() != -1) {
                 mysql.insert("emeter", timeNext, plausi.getCheckedValue());
-                while (timeNext <= time(0)) {
+                while (difftime(timeNext, time(0)) <= 0) {
                     switch(type) {
                         case 'h':
                             timeNext += 3600 * devidor; // 60*60*devidor
