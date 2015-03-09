@@ -37,7 +37,6 @@ USE \`$db\`;
 CREATE TABLE IF NOT EXISTS \`emeter\` (
   \`timestamp\` datetime NOT NULL,
   \`conskwh\` float NOT NULL,
-  \`consws\` float NOT NULL,
   PRIMARY KEY (\`timestamp\`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 EOF
