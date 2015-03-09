@@ -39,7 +39,7 @@ int MySQLDatabase::insert(const char* table, time_t time, double counter) {
     strftime(ts, sizeof ts, "%F %T", localtime(&time));
 
     char query[255];
-    sprintf(query, "INSERT INTO `%s` (timestamp, conskwh, consws) VALUES ('%s', %.1f);",
+    sprintf(query, "INSERT INTO `%s` (timestamp, conskwh) VALUES ('%s', %.1f);",
             table, ts, counter/*kWh*/);
     log4cpp::Category::getRoot() << log4cpp::Priority::DEBUG << "MySQL-Query: " << query << "\n";
 
