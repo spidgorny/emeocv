@@ -3,6 +3,8 @@ emeocv
 
 Read and recognize the counter of an electricity meter with OpenCV.
 
+Forked from @skaringa with MySQL-DB feature.
+
 ![OpenCV for the electricity meter](http://www.kompf.de/cplus/images/emeocv_m.png)
 
 
@@ -23,7 +25,7 @@ Build
 Usage
 =====
 
-    emeocv [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-s <delay>] [-v <level>]
+    emeocv [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-d <schedule>] [-s <delay>] [-v <level>] [-p]
 
     Image input:
         -i <image directory> : read image files (png) from directory.
@@ -34,11 +36,14 @@ Usage
         -o <directory> : capture images into directory.
         -l : learn OCR.
         -t : test OCR.
-        -w : write OCR data to MYSQL database. This is the normal working mode.
+        -w : write OCR data to MySQL database. This is the normal working mode.
 
     Options:
+        -d <t> : ONLY WORKS WITH OPERATION ""-w"" ! If time is divisible without remainder by t, write to DB.
+                 e.g.: 1h = every full hour or 10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None)
         -s <n> : Sleep n milliseconds after processing of each image (default=1000).
         -v <l> : Log level. One of DEBUG, INFO, ERROR (default).
+        -p : Print log also in Console (default=False).
 
 
 There is a tutorial in german language that explains use case and function of the program: [OpenCV Praxis: OCR für den Stromzähler](http://cplus.kompf.de/emeocv.html).
