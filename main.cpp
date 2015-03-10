@@ -269,6 +269,7 @@ static void usage(const char* progname) {
     std::cout << "           e.g.: 1h = every full hour or 10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None)\n";
     std::cout << "  -s <n> : Sleep n milliseconds after processing of each image (default=1000).\n";
     std::cout << "  -v <l> : Log level. One of DEBUG, INFO, ERROR (default).\n";
+    std::cout << "  -p : Print log also in Console (default=False).\n";
 }
 
 static void configureLogging(const std::string & priority = "INFO", bool toConsole = false) {
@@ -293,10 +294,11 @@ int main(int argc, char **argv) {
     std::string timeDevidor;
     std::string outputDir;
     std::string logLevel = "ERROR";
+    bool toConsole = false;
     char cmd = 0;
     int cmdCount = 0;
 
-    while ((opt = getopt(argc, argv, "i:c:ltawd:s:o:v:h")) != -1) {
+    while ((opt = getopt(argc, argv, "i:c:ltawd:s:o:v:ph")) != -1) {
         switch (opt) {
             case 'i':
                 pImageInput = new DirectoryInput(Directory(optarg, ".png"));
@@ -306,9 +308,10 @@ int main(int argc, char **argv) {
                 pImageInput = new CameraInput(atoi(optarg));
                 inputCount++;
                 break;
+            case 'a':
+                toConsole = true;
             case 'l':
             case 't':
-            case 'a':
             case 'w':
                 cmd = opt;
                 cmdCount++;
@@ -326,6 +329,9 @@ int main(int argc, char **argv) {
                 break;
             case 'v':
                 logLevel = optarg;
+                break;
+            case 'p':
+                toConsole = true;
                 break;
             case 'h':
             default:
@@ -345,7 +351,7 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    configureLogging(logLevel, cmd == 'a');
+    configureLogging(logLevel, toConsole);
 
     switch (cmd) {
         case 'o':
