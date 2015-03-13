@@ -163,7 +163,7 @@ static void capture(ImageInput* pImageInput) {
     }
 }
 
-static void writeData(ImageInput* pImageInput, std::string timeDevidor) {
+static void writeData(ImageInput* pImageInput, std::string timeDevidor, std::string outputFile) {
     log4cpp::Category::getRoot().info("writeData");
 
     Config config;
@@ -203,6 +203,17 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor) {
         std::cout << "Update MySQL DB every " << devidor << type << ".\n";
     }
 
+    bool staticFile = false;
+    if (!outputFile.empty()) {
+        pImageInput->setOutputFile(outputFile);
+        if (timeNext == 0) {
+            std::cout << "Output Static Image always, into """ << outputFile << """.\n";
+        } else {
+            std::cout << "Output Static Image every " << devidor << type << ", into """ << outputFile << """.\n";
+        }
+        staticFile = true;
+    }
+
     KNearestOcr ocr(config);
     if (! ocr.loadTrainingData()) {
         std::cout << "Failed to load OCR training data\n";
@@ -220,6 +231,9 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor) {
             if (plausi.check(result, pImageInput->getTime())) {
                 if (timeNext == 0) {
                     mysql.insert("emeter", plausi.getCheckedTime(), plausi.getCheckedValue());
+                    if (staticFile) {
+                        pImageInput->saveStaticImage();
+                    }
                 }
             }
         }
@@ -232,6 +246,9 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor) {
         if (timeNext != 0 && timeNext <= time(0)) {
             if (plausi.getCheckedValue() != -1) {
                 mysql.insert("emeter", timeNext, plausi.getCheckedValue());
+                if (staticFile) {
+                    pImageInput->saveStaticImage();
+                }
                 while (difftime(timeNext, time(0)) <= 0) {
                     switch(type) {
                         case 'h':
@@ -254,7 +271,7 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor) {
 static void usage(const char* progname) {
     std::cout << "Program to read and recognize the counter of an electricity meter with OpenCV.\n";
     std::cout << "Version: " << VERSION << std::endl;
-    std::cout << "Usage: " << progname << " [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-d <schedule>] [-s <delay>] [-v <level>] [-p]\n";
+    std::cout << "Usage: " << progname << " [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-d <schedule>] [-f <image>] [-s <delay>] [-v <level>] [-p]\n";
     std::cout << "\nImage input:\n";
     std::cout << "  -i <image directory> : read image files (png) from directory.\n";
     std::cout << "  -c <camera number> : read images from camera.\n";
@@ -267,6 +284,8 @@ static void usage(const char* progname) {
     std::cout << "\nOptions:\n";
     std::cout << "  -d <t> : ONLY WORKS WITH OPERATION ""-w"" ! If time is divisible without remainder by t, write to DB.\n";
     std::cout << "           e.g.: 1h = every full hour or 10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None).\n";
+    std::cout << "  -f <image> : ONLY WORKS WITH OPERATION ""-w"" ! Output capture image to static path,\n";
+    std::cout << "           when OCR data is written to DB. (e.g.: image=directory/filename.png).\n";
     std::cout << "  -s <n> : Sleep n milliseconds after processing of each image (default=1000).\n";
     std::cout << "  -v <l> : Log level. One of DEBUG, INFO, ERROR (default).\n";
     std::cout << "  -p : Print log also in Console (default=False).\n";
@@ -292,13 +311,14 @@ int main(int argc, char **argv) {
     ImageInput* pImageInput = 0;
     int inputCount = 0;
     std::string timeDevidor;
+    std::string outputFile;
     std::string outputDir;
     std::string logLevel = "ERROR";
     bool toConsole = false;
     char cmd = 0;
     int cmdCount = 0;
 
-    while ((opt = getopt(argc, argv, "i:c:ltawd:s:o:v:ph")) != -1) {
+    while ((opt = getopt(argc, argv, "i:c:ltawd:f:s:o:v:ph")) != -1) {
         switch (opt) {
             case 'i':
                 pImageInput = new DirectoryInput(Directory(optarg, ".png"));
@@ -318,6 +338,9 @@ int main(int argc, char **argv) {
                 break;
             case 'd':
                 timeDevidor = optarg;
+                break;
+            case 'f':
+                outputFile = optarg;
                 break;
             case 'o':
                 cmd = opt;
@@ -368,7 +391,7 @@ int main(int argc, char **argv) {
             adjustCamera(pImageInput);
             break;
         case 'w':
-            writeData(pImageInput, timeDevidor);
+            writeData(pImageInput, timeDevidor, outputFile);
             break;
     }
 

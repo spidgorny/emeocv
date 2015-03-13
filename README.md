@@ -25,7 +25,7 @@ Build
 Usage
 =====
 
-    emeocv [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-d <schedule>] [-s <delay>] [-v <level>] [-p]
+    emeocv [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-d <schedule>] [-f <image>] [-s <delay>] [-v <level>] [-p]
 
     Image input:
         -i <image directory> : read image files (png) from directory.
@@ -40,7 +40,9 @@ Usage
 
     Options:
         -d <t> : ONLY WORKS WITH OPERATION ""-w"" ! If time is divisible without remainder by t, write to DB.
-                 e.g.: 1h = every full hour or 10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None)
+                 e.g.: 1h = every full hour or 10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None).
+        -f <image> : ONLY WORKS WITH OPERATION ""-w"" ! Output capture image to static path,
+                 when OCR data is written to DB. (e.g.: image=directory/filename.png).
         -s <n> : Sleep n milliseconds after processing of each image (default=1000).
         -v <l> : Log level. One of DEBUG, INFO, ERROR (default).
         -p : Print log also in Console (default=False).

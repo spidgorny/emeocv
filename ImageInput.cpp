@@ -31,6 +31,10 @@ void ImageInput::setOutputDir(const std::string & outDir) {
     _outDir = outDir;
 }
 
+void ImageInput::setOutputFile(const std::string & outFile) {
+    _outFile = outFile;
+}
+
 void ImageInput::saveImage() {
     struct tm date;
     localtime_r(&_time, &date);
@@ -39,6 +43,12 @@ void ImageInput::saveImage() {
     std::string path = _outDir + filename;
     if (cv::imwrite(path, _img)) {
         log4cpp::Category::getRoot() << log4cpp::Priority::INFO << "Image saved to " + path;
+    }
+}
+
+void ImageInput::saveStaticImage() {
+    if (cv::imwrite(_outFile, _img)) {
+        log4cpp::Category::getRoot() << log4cpp::Priority::INFO << "Image saved to " + _outFile;
     }
 }
 
