@@ -14,7 +14,7 @@ OBJS = $(addprefix $(OUTDIR)/,\
   )
 
 CC = g++
-CFLAGS = -Wno-write-strings -I .
+CFLAGS = -Wall -Wno-write-strings -I .
 
 # DEBUG
 ifneq ($(RELEASE),true)
