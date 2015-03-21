@@ -2,6 +2,7 @@
 flipHorizontal: 0
 flipVertical: 0
 rotationDegrees: 0
+blurKernelSize: 1
 cannyThreshold1: 100
 cannyThreshold2: 200
 digitMinHeight: 20

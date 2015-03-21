@@ -46,6 +46,10 @@ public:
         return _rotationDegrees;
     }
 
+    int getBlurKernelSize() const {
+        return _blurKernelSize;
+    }
+
     int getCannyThreshold1() const {
         return _cannyThreshold1;
     }
@@ -78,6 +82,7 @@ private:
     int _digitMinHeight;
     int _digitMaxHeight;
     int _digitYAlignment;
+    int _blurKernelSize;
     int _cannyThreshold1;
     int _cannyThreshold2;
     std::string _mysqlHost;

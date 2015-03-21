@@ -206,8 +206,15 @@ float ImageProcessor::detectSkew() {
  */
 cv::Mat ImageProcessor::cannyEdges() {
     cv::Mat edges;
+    if (_config.getBlurKernelSize() > 1) {
+        // Reduce noise
+        cv::blur(_imgGray, edges, cv::Size(_config.getBlurKernelSize(), _config.getBlurKernelSize()));
+    } else {
+    	// No noise reduce -> clone image
+    	edges = _imgGray.clone();
+    }
     // detect edges
-    cv::Canny(_imgGray, edges, _config.getCannyThreshold1(), _config.getCannyThreshold2());
+    cv::Canny(edges, edges, _config.getCannyThreshold1(), _config.getCannyThreshold2());
     return edges;
 }
 
