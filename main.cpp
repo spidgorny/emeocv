@@ -208,10 +208,12 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor, std::str
     bool staticFile = false;
     if (!outputFile.empty()) {
         pImageInput->setOutputFile(outputFile);
+        pImageInput->nextImage();
+        pImageInput->saveStaticImage();
         if (timeNext == 0) {
-            std::cout << "Output Static Image always, into """ << outputFile << """.\n";
+            std::cout << "Output Static Image always, to """ << outputFile << """.\n";
         } else {
-            std::cout << "Output Static Image every " << devidor << type << ", into """ << outputFile << """.\n";
+            std::cout << "Output Static Image every " << devidor << type << ", to """ << outputFile << """.\n";
         }
         staticFile = true;
     }
