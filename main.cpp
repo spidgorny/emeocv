@@ -271,7 +271,8 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor, std::str
 static void usage(const char* progname) {
     std::cout << "Program to read and recognize the counter of an electricity meter with OpenCV.\n";
     std::cout << "Version: " << VERSION << std::endl;
-    std::cout << "Usage: " << progname << " [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-d <schedule>] [-f <image>] [-s <delay>] [-v <level>] [-p]\n";
+    std::cout << "Usage: " << progname << " [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-d <schedule>] \n";
+    std::cout << "           [-f <image>] [-s <delay>] [-v <level>] [-p]\n";
     std::cout << "\nImage input:\n";
     std::cout << "  -i <image directory> : read image files (png) from directory.\n";
     std::cout << "  -c <camera number> : read images from camera.\n";
@@ -282,10 +283,11 @@ static void usage(const char* progname) {
     std::cout << "  -t : test OCR.\n";
     std::cout << "  -w : write OCR data to MySQL database. This is the normal working mode.\n";
     std::cout << "\nOptions:\n";
-    std::cout << "  -d <t> : ONLY WORKS WITH OPERATION ""-w"" ! If time is divisible without remainder by t, write to DB.\n";
-    std::cout << "           e.g.: 1h = every full hour or 10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None).\n";
-    std::cout << "  -f <image> : ONLY WORKS WITH OPERATION ""-w"" ! Output capture image to static path,\n";
-    std::cout << "           when OCR data is written to DB. (e.g.: image=directory/filename.png).\n";
+    std::cout << "  -d <t> : ONLY WORKS WITH OPERATION \"-w\"! If time is divisible without \n";
+    std::cout << "           remainder by t, write to DB. e.g.: 1h = every full hour or \n";
+    std::cout << "           10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None).\n";
+    std::cout << "  -f <image> : ONLY WORKS WITH OPERATION \"-w\"! Output capture image to static\n";
+    std::cout << "           path, when OCR data is written to DB. (e.g.: image=<dir>/<file.png>).\n";
     std::cout << "  -s <n> : Sleep n milliseconds after processing of each image (default=1000).\n";
     std::cout << "  -v <l> : Log level. One of DEBUG, INFO, ERROR (default).\n";
     std::cout << "  -p : Print log also in Console (default=False).\n";
