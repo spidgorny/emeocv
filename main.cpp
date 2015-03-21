@@ -179,7 +179,6 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor, std::str
     char type = *timeDevidor.rbegin();
     int devidor = atoi(timeDevidor.substr(0, timeDevidor.length()-1).c_str());
     time_t timeNext = 0;
-    time_t delta;
     if ((type == 'h' || type == 'm' || type == 's') && devidor) {
         time_t now = time(0);
         struct tm * y2k;
@@ -201,7 +200,6 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor, std::str
                 timeNext = mktime(y2k) + devidor; // devidor
                 break;
         }
-        delete y2k;
         std::cout << "Update MySQL DB every " << devidor << type << ".\n";
     }
 
@@ -249,8 +247,8 @@ static void writeData(ImageInput* pImageInput, std::string timeDevidor, std::str
         }
         if (timeNext != 0 && timeNext <= time(0)) {
             if (plausi.getCheckedValue() != -1) {
-            	delta = timeNext - plausi.getCheckedTime();
-            	if (delta < 3600 && delta >= 0) {
+            	time_t delta = timeNext - plausi.getCheckedTime();
+            	if (delta < 3600 && delta >= - delay/1000) {
             		mysql.insert("emeter", timeNext, plausi.getCheckedValue());
             	}
                 if (staticFile) {
