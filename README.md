@@ -50,7 +50,9 @@ Usage
       -p : Print log also in Console (default=False)
 
 
-There is a tutorial in german language that explains use case and function of the program: [OpenCV Praxis: OCR für den Stromzähler](http://cplus.kompf.de/emeocv.html).
+There is a tutorial that explains use case and function of the program: 
+[OpenCV practice: OCR for the electricity meter](http://www.thekompf.com/cplus/emeocv.html) or
+[OpenCV Praxis: OCR für den Stromzähler](http://cplus.kompf.de/emeocv.html) (in german language).
 
 License
 =======
