@@ -14,6 +14,14 @@ public:
     void saveConfig();
     void loadConfig();
 
+    bool getFlipHorizontal() const {
+            return _flipHorizontal;
+    }
+
+    bool getFlipVertical() const {
+            return _flipVertical;
+    }
+
     int getDigitMaxHeight() const {
         return _digitMaxHeight;
     }
@@ -38,6 +46,10 @@ public:
         return _rotationDegrees;
     }
 
+    int getBlurKernelSize() const {
+        return _blurKernelSize;
+    }
+
     int getCannyThreshold1() const {
         return _cannyThreshold1;
     }
@@ -46,14 +58,37 @@ public:
         return _cannyThreshold2;
     }
 
+    std::string getMysqlHost() const {
+            return _mysqlHost;
+    }
+
+    std::string getMysqlUser() const {
+            return _mysqlUser;
+    }
+
+    std::string getMysqlPassword() const {
+            return _mysqlPassword;
+    }
+
+    std::string getMysqlDatabase() const {
+            return _mysqlDatabase;
+    }
+
 private:
+    bool _flipHorizontal;
+    bool _flipVertical;
     int _rotationDegrees;
     float _ocrMaxDist;
     int _digitMinHeight;
     int _digitMaxHeight;
     int _digitYAlignment;
+    int _blurKernelSize;
     int _cannyThreshold1;
     int _cannyThreshold2;
+    std::string _mysqlHost;
+    std::string _mysqlUser;
+    std::string _mysqlPassword;
+    std::string _mysqlDatabase;
     std::string _trainingDataFilename;
 };
 

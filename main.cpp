@@ -25,12 +25,11 @@
 #include <log4cpp/SimpleLayout.hh>
 #include <log4cpp/Priority.hh>
 
-#include "Config.h"
 #include "Directory.h"
 #include "ImageProcessor.h"
 #include "KNearestOcr.h"
 #include "Plausi.h"
-#include "RRDatabase.h"
+#include "MySQLDatabase.h"
 
 static int delay = 1000;
 
@@ -69,6 +68,7 @@ static void testOcr(ImageInput* pImageInput) {
             std::cout << "  -------" << std::endl;
         }
         int key = cv::waitKey(delay);
+        if (key >= 0x100000) key -= 0x100000;  // workaround for waitKey bug
 
         if (key == 'q') {
             std::cout << "Quit\n";
@@ -135,6 +135,7 @@ static void adjustCamera(ImageInput* pImageInput) {
         }
 
         key = cv::waitKey(delay);
+        if (key >= 0x100000) key -= 0x100000; // workaround for waitKey bug
 
         if (key == 'q' || key == 's') {
             std::cout << "Quit\n";
@@ -162,7 +163,7 @@ static void capture(ImageInput* pImageInput) {
     }
 }
 
-static void writeData(ImageInput* pImageInput) {
+static void writeData(ImageInput* pImageInput, std::string timeDevidor, std::string outputFile) {
     log4cpp::Category::getRoot().info("writeData");
 
     Config config;
@@ -171,9 +172,49 @@ static void writeData(ImageInput* pImageInput) {
 
     Plausi plausi;
 
-    RRDatabase rrd("emeter.rrd");
+    MySQLDatabase mysql(config);
 
     struct stat st;
+
+    char type = *timeDevidor.rbegin();
+    int devidor = atoi(timeDevidor.substr(0, timeDevidor.length()-1).c_str());
+    time_t timeNext = 0;
+    if ((type == 'h' || type == 'm' || type == 's') && devidor) {
+        time_t now = time(0);
+        struct tm * y2k;
+        y2k = localtime(&now);
+        switch(type) {
+            case 'h':
+                y2k->tm_hour = y2k->tm_hour - (y2k->tm_hour % devidor);
+                y2k->tm_min = 0;
+                y2k->tm_sec = 0;
+                timeNext = mktime(y2k) + (3600 * devidor); // 60*60*devidor
+                break;
+            case 'm':
+                y2k->tm_min = y2k->tm_min - (y2k->tm_min % devidor);
+                y2k->tm_sec = 0;
+                timeNext = mktime(y2k) + (60 * devidor); // 60*devidor
+                break;
+            case 's':
+                y2k->tm_sec = y2k->tm_sec - (y2k->tm_sec % devidor);
+                timeNext = mktime(y2k) + devidor; // devidor
+                break;
+        }
+        std::cout << "Update MySQL DB every " << devidor << type << ".\n";
+    }
+
+    bool staticFile = false;
+    if (!outputFile.empty()) {
+        pImageInput->setOutputFile(outputFile);
+        pImageInput->nextImage();
+        pImageInput->saveStaticImage();
+        if (timeNext == 0) {
+            std::cout << "Output Static Image always, to """ << outputFile << """.\n";
+        } else {
+            std::cout << "Output Static Image every " << devidor << type << ", to """ << outputFile << """.\n";
+        }
+        staticFile = true;
+    }
 
     KNearestOcr ocr(config);
     if (! ocr.loadTrainingData()) {
@@ -190,7 +231,12 @@ static void writeData(ImageInput* pImageInput) {
         if (proc.getOutput().size() == 7) {
             std::string result = ocr.recognize(proc.getOutput());
             if (plausi.check(result, pImageInput->getTime())) {
-                rrd.update(plausi.getCheckedTime(), plausi.getCheckedValue());
+                if (timeNext == 0) {
+                    mysql.insert("emeter", plausi.getCheckedTime(), plausi.getCheckedValue());
+                    if (staticFile) {
+                        pImageInput->saveStaticImage();
+                    }
+                }
             }
         }
         if (0 == stat("imgdebug", &st) && S_ISDIR(st.st_mode)) {
@@ -199,6 +245,31 @@ static void writeData(ImageInput* pImageInput) {
             pImageInput->saveImage();
             pImageInput->setOutputDir("");
         }
+        if (timeNext != 0 && timeNext <= time(0)) {
+            if (plausi.getCheckedValue() != -1) {
+            	time_t delta = timeNext - plausi.getCheckedTime();
+            	if (delta < 3600 && delta >= - delay/1000) {
+            		mysql.insert("emeter", timeNext, plausi.getCheckedValue());
+            	}
+                if (staticFile) {
+                    pImageInput->saveStaticImage();
+                }
+                while (timeNext <= time(0)) {
+                    switch(type) {
+                        case 'h':
+                            timeNext += 3600 * devidor; // 60*60*devidor
+                            break;
+                        case 'm':
+                            timeNext += 60 * devidor; // 60*devidor
+                            break;
+                        case 's':
+                            timeNext += devidor; // devidor
+                            break;
+                    }
+                }
+                log4cpp::Category::getRoot() << log4cpp::Priority::DEBUG << "Next schedule time: " << ctime(&timeNext);
+            }
+        }
         usleep(delay*1000L);
     }
 }
@@ -206,7 +277,8 @@ static void writeData(ImageInput* pImageInput) {
 static void usage(const char* progname) {
     std::cout << "Program to read and recognize the counter of an electricity meter with OpenCV.\n";
     std::cout << "Version: " << VERSION << std::endl;
-    std::cout << "Usage: " << progname << " [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-s <delay>] [-v <level>\n";
+    std::cout << "Usage: " << progname << " [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-d <schedule>] \n";
+    std::cout << "           [-f <image>] [-s <delay>] [-v <level>] [-p]\n";
     std::cout << "\nImage input:\n";
     std::cout << "  -i <image directory> : read image files (png) from directory.\n";
     std::cout << "  -c <camera number> : read images from camera.\n";
@@ -215,10 +287,16 @@ static void usage(const char* progname) {
     std::cout << "  -o <directory> : capture images into directory.\n";
     std::cout << "  -l : learn OCR.\n";
     std::cout << "  -t : test OCR.\n";
-    std::cout << "  -w : write OCR data to RR database. This is the normal working mode.\n";
+    std::cout << "  -w : write OCR data to MySQL database. This is the normal working mode.\n";
     std::cout << "\nOptions:\n";
+    std::cout << "  -d <t> : ONLY WORKS WITH OPERATION \"-w\"! If time is divisible without \n";
+    std::cout << "           remainder by t, write to DB. e.g.: 1h = every full hour or \n";
+    std::cout << "           10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None).\n";
+    std::cout << "  -f <image> : ONLY WORKS WITH OPERATION \"-w\"! Output capture image to static\n";
+    std::cout << "           path, when OCR data is written to DB. (e.g.: image=<dir>/<file.png>).\n";
     std::cout << "  -s <n> : Sleep n milliseconds after processing of each image (default=1000).\n";
     std::cout << "  -v <l> : Log level. One of DEBUG, INFO, ERROR (default).\n";
+    std::cout << "  -p : Print log also in Console (default=False).\n";
 }
 
 static void configureLogging(const std::string & priority = "INFO", bool toConsole = false) {
@@ -240,12 +318,15 @@ int main(int argc, char **argv) {
     int opt;
     ImageInput* pImageInput = 0;
     int inputCount = 0;
+    std::string timeDevidor;
+    std::string outputFile;
     std::string outputDir;
     std::string logLevel = "ERROR";
+    bool toConsole = false;
     char cmd = 0;
     int cmdCount = 0;
 
-    while ((opt = getopt(argc, argv, "i:c:ltaws:o:v:h")) != -1) {
+    while ((opt = getopt(argc, argv, "i:c:ltawd:f:s:o:v:ph")) != -1) {
         switch (opt) {
             case 'i':
                 pImageInput = new DirectoryInput(Directory(optarg, ".png"));
@@ -255,12 +336,19 @@ int main(int argc, char **argv) {
                 pImageInput = new CameraInput(atoi(optarg));
                 inputCount++;
                 break;
+            case 'a':
+                toConsole = true;
             case 'l':
             case 't':
-            case 'a':
             case 'w':
                 cmd = opt;
                 cmdCount++;
+                break;
+            case 'd':
+                timeDevidor = optarg;
+                break;
+            case 'f':
+                outputFile = optarg;
                 break;
             case 'o':
                 cmd = opt;
@@ -272,6 +360,9 @@ int main(int argc, char **argv) {
                 break;
             case 'v':
                 logLevel = optarg;
+                break;
+            case 'p':
+                toConsole = true;
                 break;
             case 'h':
             default:
@@ -291,7 +382,7 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    configureLogging(logLevel, cmd == 'a');
+    configureLogging(logLevel, toConsole);
 
     switch (cmd) {
         case 'o':
@@ -308,13 +399,10 @@ int main(int argc, char **argv) {
             adjustCamera(pImageInput);
             break;
         case 'w':
-            writeData(pImageInput);
+            writeData(pImageInput, timeDevidor, outputFile);
             break;
     }
 
     delete pImageInput;
     exit(EXIT_SUCCESS);
 }
-
-
-

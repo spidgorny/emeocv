@@ -9,12 +9,12 @@ OBJS = $(addprefix $(OUTDIR)/,\
   ImageInput.o \
   KNearestOcr.o \
   Plausi.o \
-  RRDatabase.o \
+  MySQLDatabase.o \
   main.o \
   )
 
 CC = g++
-CFLAGS = -Wno-write-strings -I .
+CFLAGS = -Wall -Wno-write-strings -I .
 
 # DEBUG
 ifneq ($(RELEASE),true)
@@ -26,7 +26,7 @@ endif
 
 BIN := $(OUTDIR)/$(PROJECT)
 
-LDLIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lrrd -llog4cpp
+LDLIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lmysqlclient -llog4cpp
 
 SUFFIXES= .cpp .o
 .SUFFIXES: $(SUFFIXES) .

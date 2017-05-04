@@ -115,5 +115,3 @@ std::string Plausi::queueAsString() {
     str += "]";
     return str;
 }
-
-

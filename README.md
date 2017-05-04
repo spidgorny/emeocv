@@ -3,6 +3,8 @@ emeocv
 
 Read and recognize the counter of an electricity meter with OpenCV.
 
+Forked from @skaringa with MySQL-DB feature.
+
 ![OpenCV for the electricity meter](http://www.kompf.de/cplus/images/emeocv_m.png)
 
 
@@ -11,7 +13,7 @@ Prerequisites
 
 * g++, make
 * OpenCV 2 (Debian/Ubuntu/Raspbian: `apt-get install libopencv-dev`)
-* RRDtool (`apt-get install rrdtool librrd-dev`)
+* MySQL-Client (`apt-get install mysql-client libmysqlclient-dev`)
 * log4cpp (`apt-get install liblog4cpp5-dev`)
 
 Build
@@ -23,22 +25,29 @@ Build
 Usage
 =====
 
-    emeocv [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-s <delay>] [-v <level>]
+    emeocv [-i <dir>|-c <cam>] [-l|-t|-a|-w|-o <dir>] [-d <schedule>] 
+            [-f <image>] [-s <delay>] [-v <level>] [-p]
 
     Image input:
-        -i <image directory> : read image files (png) from directory.
-        -c <camera number> : read images from camera.
+      -i <image directory> : read image files (png) from directory.
+      -c <camera number> : read images from camera.
 
     Operation:
-        -a : adjust camera.
-        -o <directory> : capture images into directory.
-        -l : learn OCR.
-        -t : test OCR.
-        -w : write OCR data to RR database. This is the normal working mode.
+      -a : adjust camera.
+      -o <directory> : capture images into directory.
+      -l : learn OCR.
+      -t : test OCR.
+      -w : write OCR data to MySQL database. This is the normal working mode.
 
     Options:
-        -s <n> : Sleep n milliseconds after processing of each image (default=1000).
-        -v <l> : Log level. One of DEBUG, INFO, ERROR (default).
+      -d <t> : ONLY WORKS WITH OPERATION "-w"! If time is divisible without 
+                remainder by t, write to DB. e.g.: 1h = every full hour or 
+                10m = every full 10 minutes. (t=<number>[h|m|s]) (default=None).
+      -f <image> : ONLY WORKS WITH OPERATION "-w"! Output capture image to static
+                path, when OCR data is written to DB. (e.g.: image=<dir>/<file.png>).
+      -s <n> : Sleep n milliseconds after processing of each image (default=1000).
+      -v <l> : Log level. One of DEBUG, INFO, ERROR (default).
+      -p : Print log also in Console (default=False)
 
 
 There is a tutorial that explains use case and function of the program: 
@@ -48,7 +57,8 @@ There is a tutorial that explains use case and function of the program:
 License
 =======
 
-Copyright 2015 Martin Kompf
+* Copyright 2015 Martin Kompf
+* Copyright 2015 Matthias Freund (MAFLO321)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

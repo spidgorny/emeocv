@@ -33,6 +33,7 @@ KNearestOcr::~KNearestOcr() {
 int KNearestOcr::learn(const cv::Mat & img) {
     cv::imshow("Learn", img);
     int key = cv::waitKey(0);
+    if (key >= 0x100000) key -= 0x100000; // workaround for waitKey bug
     if (key >= '0' && key <= '9') {
         _responses.push_back(cv::Mat(1, 1, CV_32F, (float) key - '0'));
         _samples.push_back(prepareSample(img));
@@ -136,4 +137,3 @@ cv::Mat KNearestOcr::prepareSample(const cv::Mat& img) {
 void KNearestOcr::initModel() {
     _pModel = new CvKNearest(_samples, _responses);
 }
-

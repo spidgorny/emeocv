@@ -24,12 +24,15 @@ public:
     virtual cv::Mat & getImage();
     virtual time_t getTime();
     virtual void setOutputDir(const std::string & outDir);
+    virtual void setOutputFile(const std::string & outFile);
     virtual void saveImage();
+    virtual void saveStaticImage();
 
 protected:
     cv::Mat _img;
     time_t _time;
     std::string _outDir;
+    std::string _outFile;
 };
 
 class DirectoryInput: public ImageInput {
