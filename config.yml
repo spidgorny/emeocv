@@ -1,6 +1,6 @@
 %YAML:1.0
-flipHorizontal: 0
-flipVertical: 0
+flipHorizontal: 1
+flipVertical: 1
 rotationDegrees: 0
 blurKernelSize: 1
 cannyThreshold1: 100
@@ -9,8 +9,8 @@ digitMinHeight: 20
 digitMaxHeight: 90
 digitYAlignment: 10
 ocrMaxDist: 600000.
-mysqlHost: "localhost"
-mysqlUser: "root"
-mysqlPassword: "root"
-mysqlDatabase: "emeter"
+mysqlHost: localhost
+mysqlUser: root
+mysqlPassword: root
+mysqlDatabase: emeter
 trainingDataFilename: "training.yml"

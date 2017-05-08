@@ -118,8 +118,8 @@ static void adjustCamera(ImageInput* pImageInput) {
     ImageProcessor proc(config);
     proc.debugWindow();
     proc.debugDigits();
-    //proc.debugEdges();
-    //proc.debugSkew();
+    proc.debugEdges();
+    proc.debugSkew();
 
     std::cout << "Adjust camera.\n";
     std::cout << "<r>, <p> to select raw or processed image, <s> to save config and quit, <q> to quit without saving.\n";

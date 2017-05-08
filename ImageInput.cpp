@@ -91,15 +91,17 @@ bool DirectoryInput::nextImage() {
 
 CameraInput::CameraInput(int device) {
     _capture.open(device);
-    _capture.set(CV_CAP_PROP_FRAME_WIDTH, 1024);
-    _capture.set(CV_CAP_PROP_FRAME_HEIGHT, 768);
+//    _capture.set(CV_CAP_PROP_FRAME_WIDTH, 1024);
+    _capture.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+//    _capture.set(CV_CAP_PROP_FRAME_HEIGHT, 768);
+    _capture.set(CV_CAP_PROP_FRAME_HEIGHT, 960);
 }
 
 bool CameraInput::nextImage() {
     time(&_time);
     // read image from camera
-    bool success = _capture.read(_img);
 
+    bool success = _capture.read(_img);
     log4cpp::Category::getRoot() << log4cpp::Priority::INFO << "Image captured: " << success;
 
     // save copy of image if requested

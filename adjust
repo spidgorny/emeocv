@@ -1,0 +1,2 @@
+#!/bin/bash
+./Debug/emeocv -c 0 -a

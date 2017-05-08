@@ -26,7 +26,11 @@ public:
 };
 
 ImageProcessor::ImageProcessor(const Config & config) :
-        _config(config), _debugWindow(false), _debugSkew(false), _debugDigits(false), _debugEdges(false) {
+        _config(config),
+        _debugWindow(false),
+        _debugSkew(false),
+        _debugDigits(false),
+        _debugEdges(false) {
 }
 
 /**
@@ -83,6 +87,18 @@ void ImageProcessor::process() {
 
     // initial rotation to get the digits up
     rotate(_config.getRotationDegrees());
+
+//	cv::Mat img1;
+//	img1 = _imgGray;
+	//cv::resize(img1, _imgGray, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
+	int xMin = 700;
+	int xMax = 1150;
+	int yMin = 100;
+	int yMax = 400;
+	_img     = _img    (cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
+	_imgGray = _imgGray(cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
+	log4cpp::Category::getRoot() << log4cpp::Priority::INFO << "Image cropped to ["
+		<< xMin << ", " << yMin << "] x [" << xMax << ", " << yMax << "]";
 
     // detect and correct remaining skew (+- 30 deg)
     float skew_deg = detectSkew();
@@ -297,7 +313,7 @@ void ImageProcessor::findCounterDigits() {
     }
 
     // cut out found rectangles from edged image
-    for (int i = 0; i < alignedBoundingBoxes.size(); ++i) {
+    for (size_t i = 0; i < alignedBoundingBoxes.size(); ++i) {
         cv::Rect roi = alignedBoundingBoxes[i];
         _digits.push_back(img_ret(roi));
         if (_debugDigits) {
