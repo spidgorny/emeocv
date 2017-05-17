@@ -65,7 +65,7 @@ static void testOcr(ImageInput* pImageInput) {
         if (plausi.check(result, pImageInput->getTime())) {
             std::cout << "  " << std::fixed << std::setprecision(1) << plausi.getCheckedValue() << std::endl;
         } else {
-            std::cout << "  -------" << std::endl;
+            std::cout << "\t-------\t" << plausi.getCheckedValue() << "\t" << plausi.getCheckedTime() << std::endl;
         }
         int key = cv::waitKey(delay);
         if (key >= 0x100000) key -= 0x100000;  // workaround for waitKey bug

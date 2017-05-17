@@ -92,9 +92,11 @@ bool DirectoryInput::nextImage() {
 CameraInput::CameraInput(int device) {
     _capture.open(device);
 //    _capture.set(CV_CAP_PROP_FRAME_WIDTH, 1024);
-    _capture.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
 //    _capture.set(CV_CAP_PROP_FRAME_HEIGHT, 768);
-    _capture.set(CV_CAP_PROP_FRAME_HEIGHT, 960);
+//    _capture.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+//    _capture.set(CV_CAP_PROP_FRAME_HEIGHT, 960);
+    _capture.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+    _capture.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 }
 
 bool CameraInput::nextImage() {

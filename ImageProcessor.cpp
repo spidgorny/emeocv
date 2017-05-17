@@ -91,14 +91,16 @@ void ImageProcessor::process() {
 //	cv::Mat img1;
 //	img1 = _imgGray;
 	//cv::resize(img1, _imgGray, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
-	int xMin = 700;
-	int xMax = 1150;
-	int yMin = 100;
-	int yMax = 400;
-	_img     = _img    (cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
-	_imgGray = _imgGray(cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
-	log4cpp::Category::getRoot() << log4cpp::Priority::INFO << "Image cropped to ["
-		<< xMin << ", " << yMin << "] x [" << xMax << ", " << yMax << "]";
+	if (0) {
+		int xMin = 700;
+		int xMax = 1150;
+		int yMin = 100;
+		int yMax = 400;
+		_img     = _img    (cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
+		_imgGray = _imgGray(cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
+		log4cpp::Category::getRoot() << log4cpp::Priority::INFO << "Image cropped to ["
+			<< xMin << ", " << yMin << "] x [" << xMax << ", " << yMax << "]";
+	}
 
     // detect and correct remaining skew (+- 30 deg)
     float skew_deg = detectSkew();
