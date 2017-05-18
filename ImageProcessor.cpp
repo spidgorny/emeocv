@@ -76,7 +76,7 @@ void ImageProcessor::showImage() {
  * Main processing function.
  * Read input image and create vector of images for each digit.
  */
-void ImageProcessor::process() {
+std::vector<std::vector<cv::Point> > ImageProcessor::process() {
     _digits.clear();
 
     // convert to gray
@@ -107,11 +107,13 @@ void ImageProcessor::process() {
     rotate(skew_deg);
 
     // find and isolate counter digits
-    findCounterDigits();
+    std::vector<std::vector<cv::Point> > filteredContours;
+    filteredContours = findCounterDigits();
 
     if (_debugWindow) {
         showImage();
     }
+    return filteredContours;
 }
 
 /**
@@ -272,7 +274,7 @@ void ImageProcessor::filterContours(std::vector<std::vector<cv::Point> >& contou
 /**
  * Find and isolate the digits of the counter,
  */
-void ImageProcessor::findCounterDigits() {
+std::vector<std::vector<cv::Point> > ImageProcessor::findCounterDigits() {
     log4cpp::Category& rlog = log4cpp::Category::getRoot();
 
     // edge image
@@ -322,4 +324,6 @@ void ImageProcessor::findCounterDigits() {
             cv::rectangle(_img, roi, cv::Scalar(0, 255, 0), 2);
         }
     }
+
+    return filteredContours;
 }

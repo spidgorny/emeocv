@@ -19,7 +19,7 @@ public:
 
     void setOrientation(int rotationDegrees);
     void setInput(cv::Mat & img);
-    void process();
+    std::vector<std::vector<cv::Point> > process();
     const std::vector<cv::Mat> & getOutput();
 
     void debugWindow(bool bval = true);
@@ -33,7 +33,7 @@ public:
 private:
     void flip(bool flipHorizontal, bool flipVertical);
     void rotate(double rotationDegrees);
-    void findCounterDigits();
+    std::vector<std::vector<cv::Point> > findCounterDigits();
     void findAlignedBoxes(std::vector<cv::Rect>::const_iterator begin,
             std::vector<cv::Rect>::const_iterator end, std::vector<cv::Rect>& result);
     float detectSkew();

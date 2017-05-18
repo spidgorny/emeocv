@@ -152,6 +152,32 @@ static void adjustCamera(ImageInput* pImageInput) {
     }
 }
 
+static void adjustCameraOnce(ImageInput* pImageInput) {
+    log4cpp::Category::getRoot().info("adjustCameraOnce");
+
+    Config config;
+    config.loadConfig();
+    ImageProcessor proc(config);
+//    proc.debugWindow();
+//    proc.debugDigits();
+//    proc.debugEdges();
+//    proc.debugSkew();
+
+    std::cout << "Adjust camera.\n";
+
+    bool processImage = true;
+
+    pImageInput->nextImage();
+	proc.setInput(pImageInput->getImage());
+	if (processImage) {
+		std::vector<std::vector<cv::Point> > filteredContours;
+		filteredContours = proc.process();
+		std::cout << "Filtered contours: " << filteredContours.size() << "\n";
+	} else {
+		proc.showImage();
+	}
+}
+
 static void capture(ImageInput* pImageInput) {
     log4cpp::Category::getRoot().info("capture");
 
@@ -326,7 +352,7 @@ int main(int argc, char **argv) {
     char cmd = 0;
     int cmdCount = 0;
 
-    while ((opt = getopt(argc, argv, "i:c:ltawd:f:s:o:v:ph")) != -1) {
+    while ((opt = getopt(argc, argv, "i:c:ltaAwd:f:s:o:v:ph")) != -1) {
         switch (opt) {
             case 'i':
                 pImageInput = new DirectoryInput(Directory(optarg, ".png"));
@@ -337,6 +363,7 @@ int main(int argc, char **argv) {
                 inputCount++;
                 break;
             case 'a':
+            case 'A':
                 toConsole = true;
             case 'l':
             case 't':
@@ -397,6 +424,9 @@ int main(int argc, char **argv) {
             break;
         case 'a':
             adjustCamera(pImageInput);
+            break;
+        case 'A':
+            adjustCameraOnce(pImageInput);
             break;
         case 'w':
             writeData(pImageInput, timeDevidor, outputFile);
