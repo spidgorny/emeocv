@@ -152,7 +152,7 @@ static void adjustCamera(ImageInput* pImageInput) {
     }
 }
 
-static void adjustCameraOnce(ImageInput* pImageInput) {
+static void adjustCameraOnce(ImageInput* pImageInput, std::string dataPath) {
     log4cpp::Category::getRoot().info("adjustCameraOnce");
 
     Config config;
@@ -165,17 +165,25 @@ static void adjustCameraOnce(ImageInput* pImageInput) {
 
     std::cout << "Adjust camera.\n";
 
-    bool processImage = true;
-
     pImageInput->nextImage();
-	proc.setInput(pImageInput->getImage());
-	if (processImage) {
-		std::vector<std::vector<cv::Point> > filteredContours;
-		filteredContours = proc.process();
-		std::cout << "Filtered contours: " << filteredContours.size() << "\n";
-	} else {
-		proc.showImage();
-	}
+
+    cv::Mat img;
+    img = pImageInput->getImage();
+	proc.setInput(img);
+
+    std::vector<std::vector<cv::Point> > filteredContours;
+    filteredContours = proc.process();
+    std::cout << "Filtered contours: " << filteredContours.size() << "\n";
+
+    cv::Mat cont = cv::Mat::zeros(img.rows, img.cols, CV_8UC1);
+    cv::drawContours(cont, filteredContours, -1, cv::Scalar(255));
+    std::string pathFC = dataPath + "/filteredContours.png";
+    std::cout << "pathFC: " << pathFC << "\n";
+    cv::imwrite(pathFC, cont);
+
+    std::string pathSource = dataPath + "/source.png";
+    std::cout << "pathSource: " << pathSource << "\n";
+    cv::imwrite(pathSource, img);
 }
 
 static void capture(ImageInput* pImageInput) {
@@ -351,8 +359,9 @@ int main(int argc, char **argv) {
     bool toConsole = false;
     char cmd = 0;
     int cmdCount = 0;
+    std::string dataPath;
 
-    while ((opt = getopt(argc, argv, "i:c:ltaAwd:f:s:o:v:ph")) != -1) {
+    while ((opt = getopt(argc, argv, "i:c:ltaA:wd:f:s:o:v:ph")) != -1) {
         switch (opt) {
             case 'i':
                 pImageInput = new DirectoryInput(Directory(optarg, ".png"));
@@ -363,8 +372,16 @@ int main(int argc, char **argv) {
                 inputCount++;
                 break;
             case 'a':
+                toConsole = true;
+                cmd = opt;
+                cmdCount++;
+                break;
             case 'A':
                 toConsole = true;
+                cmd = opt;
+                cmdCount++;
+                dataPath = optarg;
+                break;
             case 'l':
             case 't':
             case 'w':
@@ -426,7 +443,7 @@ int main(int argc, char **argv) {
             adjustCamera(pImageInput);
             break;
         case 'A':
-            adjustCameraOnce(pImageInput);
+            adjustCameraOnce(pImageInput, dataPath);
             break;
         case 'w':
             writeData(pImageInput, timeDevidor, outputFile);
