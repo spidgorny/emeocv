@@ -278,17 +278,17 @@ std::vector<std::vector<cv::Point> > ImageProcessor::findCounterDigits() {
     log4cpp::Category& rlog = log4cpp::Category::getRoot();
 
     // edge image
-    cv::Mat edges = cannyEdges();
+    _edges = cannyEdges();
     if (_debugEdges) {
         cv::imshow("edges", edges);
     }
 
-    cv::Mat img_ret = edges.clone();
+    cv::Mat img_ret = _edges.clone();
 
     // find contours in whole image
     std::vector<std::vector<cv::Point> > contours, filteredContours;
     std::vector<cv::Rect> boundingBoxes;
-    cv::findContours(edges, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    cv::findContours(_edges, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
     // filter contours by bounding rect size
     filterContours(contours, boundingBoxes, filteredContours);
@@ -311,7 +311,7 @@ std::vector<std::vector<cv::Point> > ImageProcessor::findCounterDigits() {
 
     if (_debugEdges) {
         // draw contours
-        cv::Mat cont = cv::Mat::zeros(edges.rows, edges.cols, CV_8UC1);
+        cv::Mat cont = cv::Mat::zeros(_edges.rows, _edges.cols, CV_8UC1);
         cv::drawContours(cont, filteredContours, -1, cv::Scalar(255));
         cv::imshow("contours", cont);
     }

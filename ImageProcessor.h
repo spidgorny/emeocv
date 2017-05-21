@@ -30,6 +30,8 @@ public:
     void saveConfig();
     void loadConfig();
 
+    cv::Mat _edges;
+
 private:
     void flip(bool flipHorizontal, bool flipVertical);
     void rotate(double rotationDegrees);
