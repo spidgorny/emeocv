@@ -11,6 +11,6 @@ digitYAlignment: 10
 ocrMaxDist: 600000.
 mysqlHost: localhost
 mysqlUser: root
-mysqlPassword: root
+mysqlPassword:
 mysqlDatabase: emeter
 trainingDataFilename: "training.yml"

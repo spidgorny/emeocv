@@ -65,7 +65,7 @@ static void testOcr(ImageInput* pImageInput) {
         if (plausi.check(result, pImageInput->getTime())) {
             std::cout << "  " << std::fixed << std::setprecision(1) << plausi.getCheckedValue() << std::endl;
         } else {
-            std::cout << "  -------" << std::endl;
+            std::cout << "\t-------\t" << plausi.getCheckedValue() << "\t" << plausi.getCheckedTime() << std::endl;
         }
         int key = cv::waitKey(delay);
         if (key >= 0x100000) key -= 0x100000;  // workaround for waitKey bug
@@ -150,6 +150,40 @@ static void adjustCamera(ImageInput* pImageInput) {
         std::cout << "Saving config\n";
         config.saveConfig();
     }
+}
+
+static void adjustCameraOnce(ImageInput* pImageInput, std::string dataPath) {
+    log4cpp::Category::getRoot().info("adjustCameraOnce");
+
+    Config config;
+    config.loadConfig();
+    ImageProcessor proc(config);
+//    proc.debugWindow();
+//    proc.debugDigits();
+//    proc.debugEdges();
+//    proc.debugSkew();
+
+    std::cout << "Adjust camera.\n";
+
+    pImageInput->nextImage();
+
+    cv::Mat img;
+    img = pImageInput->getImage();
+	proc.setInput(img);
+
+    std::vector<std::vector<cv::Point> > filteredContours;
+    filteredContours = proc.process();
+    std::cout << "Filtered contours: " << filteredContours.size() << "\n";
+
+    cv::Mat cont = cv::Mat::zeros(img.rows, img.cols, CV_8UC1);
+    cv::drawContours(cont, filteredContours, -1, cv::Scalar(255));
+    std::string pathFC = dataPath + "/filteredContours.png";
+    std::cout << "pathFC: " << pathFC << "\n";
+    cv::imwrite(pathFC, cont);
+
+    std::string pathSource = dataPath + "/source.png";
+    std::cout << "pathSource: " << pathSource << "\n";
+    cv::imwrite(pathSource, img);
 }
 
 static void capture(ImageInput* pImageInput) {
@@ -325,8 +359,9 @@ int main(int argc, char **argv) {
     bool toConsole = false;
     char cmd = 0;
     int cmdCount = 0;
+    std::string dataPath;
 
-    while ((opt = getopt(argc, argv, "i:c:ltawd:f:s:o:v:ph")) != -1) {
+    while ((opt = getopt(argc, argv, "i:c:ltaA:wd:f:s:o:v:ph")) != -1) {
         switch (opt) {
             case 'i':
                 pImageInput = new DirectoryInput(Directory(optarg, ".png"));
@@ -338,6 +373,15 @@ int main(int argc, char **argv) {
                 break;
             case 'a':
                 toConsole = true;
+                cmd = opt;
+                cmdCount++;
+                break;
+            case 'A':
+                toConsole = true;
+                cmd = opt;
+                cmdCount++;
+                dataPath = optarg;
+                break;
             case 'l':
             case 't':
             case 'w':
@@ -397,6 +441,9 @@ int main(int argc, char **argv) {
             break;
         case 'a':
             adjustCamera(pImageInput);
+            break;
+        case 'A':
+            adjustCameraOnce(pImageInput, dataPath);
             break;
         case 'w':
             writeData(pImageInput, timeDevidor, outputFile);

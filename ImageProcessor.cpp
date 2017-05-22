@@ -76,7 +76,7 @@ void ImageProcessor::showImage() {
  * Main processing function.
  * Read input image and create vector of images for each digit.
  */
-void ImageProcessor::process() {
+std::vector<std::vector<cv::Point> > ImageProcessor::process() {
     _digits.clear();
 
     // convert to gray
@@ -91,25 +91,29 @@ void ImageProcessor::process() {
 //	cv::Mat img1;
 //	img1 = _imgGray;
 	//cv::resize(img1, _imgGray, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
-	int xMin = 700;
-	int xMax = 1150;
-	int yMin = 100;
-	int yMax = 400;
-	_img     = _img    (cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
-	_imgGray = _imgGray(cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
-	log4cpp::Category::getRoot() << log4cpp::Priority::INFO << "Image cropped to ["
-		<< xMin << ", " << yMin << "] x [" << xMax << ", " << yMax << "]";
+	if (0) {
+		int xMin = 700;
+		int xMax = 1150;
+		int yMin = 100;
+		int yMax = 400;
+		_img     = _img    (cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
+		_imgGray = _imgGray(cv::Rect(xMin, yMin, xMax-xMin, yMax-yMin));
+		log4cpp::Category::getRoot() << log4cpp::Priority::INFO << "Image cropped to ["
+			<< xMin << ", " << yMin << "] x [" << xMax << ", " << yMax << "]";
+	}
 
     // detect and correct remaining skew (+- 30 deg)
     float skew_deg = detectSkew();
     rotate(skew_deg);
 
     // find and isolate counter digits
-    findCounterDigits();
+    std::vector<std::vector<cv::Point> > filteredContours;
+    filteredContours = findCounterDigits();
 
     if (_debugWindow) {
         showImage();
     }
+    return filteredContours;
 }
 
 /**
@@ -270,21 +274,21 @@ void ImageProcessor::filterContours(std::vector<std::vector<cv::Point> >& contou
 /**
  * Find and isolate the digits of the counter,
  */
-void ImageProcessor::findCounterDigits() {
+std::vector<std::vector<cv::Point> > ImageProcessor::findCounterDigits() {
     log4cpp::Category& rlog = log4cpp::Category::getRoot();
 
     // edge image
-    cv::Mat edges = cannyEdges();
+    _edges = cannyEdges();
     if (_debugEdges) {
         cv::imshow("edges", edges);
     }
 
-    cv::Mat img_ret = edges.clone();
+    cv::Mat img_ret = _edges.clone();
 
     // find contours in whole image
     std::vector<std::vector<cv::Point> > contours, filteredContours;
     std::vector<cv::Rect> boundingBoxes;
-    cv::findContours(edges, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    cv::findContours(_edges, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
     // filter contours by bounding rect size
     filterContours(contours, boundingBoxes, filteredContours);
@@ -307,7 +311,7 @@ void ImageProcessor::findCounterDigits() {
 
     if (_debugEdges) {
         // draw contours
-        cv::Mat cont = cv::Mat::zeros(edges.rows, edges.cols, CV_8UC1);
+        cv::Mat cont = cv::Mat::zeros(_edges.rows, _edges.cols, CV_8UC1);
         cv::drawContours(cont, filteredContours, -1, cv::Scalar(255));
         cv::imshow("contours", cont);
     }
@@ -320,4 +324,6 @@ void ImageProcessor::findCounterDigits() {
             cv::rectangle(_img, roi, cv::Scalar(0, 255, 0), 2);
         }
     }
+
+    return filteredContours;
 }
